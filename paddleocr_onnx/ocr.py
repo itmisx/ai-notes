@@ -33,9 +33,9 @@ def ctc_decode(preds, char_list):
     return text
 
 # 加载 ONNX 模型生成推理用 sess
-sess = onnxruntime.InferenceSession("model/inference.onnx")
+sess = onnxruntime.InferenceSession("PP-OCRv5_server_rec_infer/inference.onnx")
 # 数据预处理
-img = Image.open("ocr.jpg").convert("RGB")
+img = Image.open("text.png").convert("RGB")
 data = resize_norm_img(img)
 # 使用 ONNXRuntime 推理
 input_name = sess.get_inputs()[0].name
