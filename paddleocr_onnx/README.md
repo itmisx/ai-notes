@@ -11,7 +11,7 @@ paddlex --install paddle2onnx
 # 执行转换
 # paddle_model_dir paddle模型路径
 # onnx_model_dir 转换onnx的模型路径
-paddlex  --paddle2onnx --paddle_model_dir /your/paddle_model/dir  --onnx_model_dir /your/onnx_model/output/dir --opset_version 7
+paddlex  --paddle2onnx --paddle_model_dir ./PP-OCRv5_server_rec_infer --onnx_model_dir ./PP-OCRv5_server_rec_infer --opset_version 7
 # 模型下载地址
 # https://paddlepaddle.github.io/PaddleOCR/latest/version3.x/module_usage/text_recognition.html#_2
 # 如果进行文字识别，需要单独下载字库，需要模型训练的字库一致

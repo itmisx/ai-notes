@@ -16,38 +16,41 @@ def resize_norm_img(img, image_shape=(3, 48, 320)):
     img = img.transpose((2, 0, 1))  # HWC -> CHW
     img = np.expand_dims(img, axis=0)
     return img
+
 def load_dict(dict_path):
     with open(dict_path, 'r', encoding='utf-8') as f:
         return [line.strip() for line in f]
 
-
 def ctc_decode(preds, char_list):
-    # preds: [batch, seq_len, num_classes]
-    pred_indices = np.argmax(preds, axis=2)[0]  # 取最大概率的索引
+    pred_indices = np.argmax(preds, axis=2)[0]
     prev_idx = -1
     text = ''
     for idx in pred_indices:
-        if idx != prev_idx and idx < len(char_list) and idx != 0:  # 0 通常是 blank
+        if idx != prev_idx and idx < len(char_list) and idx != 0:
             text += char_list[idx]
         prev_idx = idx
     return text
 
-# 加载 ONNX 模型生成推理用 sess
-sess = onnxruntime.InferenceSession("model/inference.onnx")
+# ✅ 使用 DirectML 加速，兼容 AMD GPU/NPU
+providers = ['DmlExecutionProvider', 'CPUExecutionProvider']
+
+# 创建 ONNX 推理会话
+sess = onnxruntime.InferenceSession("PP-OCRv5_server_rec_infer/inference.onnx", providers=providers)
+
 # 数据预处理
-img = Image.open("ocr.jpg").convert("RGB")
+img = Image.open("text.png").convert("RGB")
 data = resize_norm_img(img)
+
 # 使用 ONNXRuntime 推理
 input_name = sess.get_inputs()[0].name
 result, = sess.run(None, {input_name: data})
-# 推理结果后处理
-print(result)
 
 # 加载字典
-# char_list = load_dict('ppocrv5_dict.txt')
 char_list = [''] + load_dict('ppocrv5_dict.txt')
-# 解码输出
+
+# 推理结果后处理
 if result.shape[1] > result.shape[2]:
     result = np.transpose(result, (0, 2, 1))
+
 text = ctc_decode(result, char_list)
 print("识别结果：", text)
